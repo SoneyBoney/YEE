@@ -1,9 +1,7 @@
-module Numbers where
+module Main where
 
 import Data.List
 import Data.Char
-
-
 
 data Expr = Num  Int | Op Ops Expr Expr
 
@@ -42,9 +40,6 @@ evalExpr (Num n) = [n]
 evalExpr (Op Div _ (Num 0)) = []
 evalExpr (Op oper x y) = concat [evalOp oper a b| a <- evalExpr x, b <- evalExpr y]
 
-
-
-
 ops :: [Ops]
 ops = [Add, Sub, Mult, Div]
 
@@ -58,7 +53,6 @@ exprGen numbers = [x
                    , a' <- exprGen a
                    , b' <- exprGen b
                    , x <- merge a' b']
-
 
 merge :: Expr -> Expr -> [Expr]
 merge operand1 operand2 = [Op operation operand1 operand2 | operation <- ops] 
@@ -75,16 +69,15 @@ solve :: Int -> [Int] -> [Expr]
 solve target options = [b | a <- allNums, b <- exprGen a, evalExpr b == [target]]
                      where allNums = concatMap permutations $ powerSet options
 
-
 main :: IO()
 main = do
-       putStrLn "5 numbers please...\n"
+       putStrLn "5 numbers please..."
        line <- getLine
-       let numbers_5 = concatMap (map digitToInt) $ lines line
-       putStrLn "Target number:\n"
+       let numbers_5 = map read $ words line
+       putStrLn "Target number:"
        line_target <- getLine
        let target = read line_target
-       putStrLn $ map show $ solve target numbers_5
+       putStrLn $ show $ solve target numbers_5
 
 
 
