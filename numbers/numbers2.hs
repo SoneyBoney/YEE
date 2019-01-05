@@ -30,9 +30,11 @@ instance Show Expr where
 
 evalOp :: Ops -> Int -> Int -> [Int]
 evalOp Add x y  = [x + y]
-evalOp Sub x y  = [x - y]
+evalOp Sub x y  | x >= y = [x - y]
+                | otherwise = []
 evalOp Mult x y = [x * y]
 evalOp Div x y  | y == 0 = []
+                | x `mod` y /= 0 = []
                 | otherwise = [x `div` y]
 
 evalExpr :: Expr -> [Int]
@@ -40,8 +42,7 @@ evalExpr (Num n) = [n]
 evalExpr (Op Div _ (Num 0)) = []
 evalExpr (Op oper x y) = concat [evalOp oper a b| a <- evalExpr x, b <- evalExpr y]
 
-checkDive :: Expr -> Bool
-checkDive (Op Div _ y) = if y == (Num 0) then False else True
+
 
 
 ops :: [Ops]
@@ -52,6 +53,8 @@ exprGen [] = []
 exprGen [x] = [Num x]
 exprGen numbers = [x
                    | (a,b) <- cleave numbers
+                   , not $ null a
+                   , not $ null b
                    , a' <- exprGen a
                    , b' <- exprGen b
                    , x <- merge a' b']
@@ -74,4 +77,15 @@ solve target options = [b | a <- allNums, b <- exprGen a, evalExpr b == [target]
 
 
 main :: IO()
-main = print (solve 100 [50,40])
+main = do
+       putStrLn "5 numbers please...\n"
+       line <- getLine
+       let numbers_5 = concatMap (map digitToInt) $ lines line
+       putStrLn "Target number:\n"
+       line_target <- getLine
+       let target = read line_target
+       putStrLn $ map show $ solve target numbers_5
+
+
+
+
