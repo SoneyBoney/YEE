@@ -70,40 +70,77 @@ int play_move(int position, State *game) {
 			(game->board)[i_c][j_c] = 1;
 		else
 			(game->board)[i_c][j_c] = 2;
-		return 1;
 	}
+	return 1;
 }
 
 int check_win(State *game) {
 	//int i,j;
 	int a,b,c;
 	// column wins
-	for(int i = 0; i < 2; i++) {
-		a = (game->board)[0][i];
-		b = (game->board)[1][i];
-		c = (game->board)[2][i];
-		if(a == b && b == c && a != 0)
+	//for(int i = 0; i < 2; ++i) {
+		a = (game->board)[0][0];
+		b = (game->board)[1][0];
+		c = (game->board)[2][0];
+		if((a == b) && (a == c) && (b==c) && (a != 0) && (b!=0)&&(c!=0)) {
+		//if((game->board)[0][i] == (game->board)[1][i] && (game->board)[1][i] == (game->board)[2][i] && (game->board)[2][i] != 0)
 			return 1;
-	}
+		}
+
+		a = (game->board)[0][1];
+		b = (game->board)[1][1];
+		c = (game->board)[2][1];
+		if((a == b) && (a == c) && (b==c) && (a != 0) && (b!=0)&&(c!=0))
+			return 1;
+
+		a = (game->board)[0][2];
+		b = (game->board)[1][2];
+		c = (game->board)[2][2];
+		if((a == b) && (a == c) && (b==c) && (a != 0) && (b!=0)&&(c!=0))
+			return 1;
+
+		
+	//}
 	// row wins
-	for(int i = 0; i < 2; i++) {
-		a = (game->board)[i][0];
-		b = (game->board)[i][1];
-		c = (game->board)[i][2];
-		if(a == b && b == c && a != 0)
+	//for(int i = 0; i < 2; ++i) {
+		a = (game->board)[0][0];
+		b = (game->board)[0][1];
+		c = (game->board)[0][2];
+		if((a == b) && (a == c) && (b==c) && (a != 0) && (b!=0)&&(c!=0)) {
+		//if((game->board)[i][0] == (game->board)[i][1] && (game->board)[i][1] == (game->board)[i][2] && (game->board)[i][2] != 0)
 			return 1;
-	}
+		}
+	//}
+
+		a = (game->board)[1][0];
+		b = (game->board)[1][1];
+		c = (game->board)[1][2];
+		if((a == b) && (a == c) && (b==c) && (a != 0) && (b!=0)&&(c!=0))
+			return 1;
+
+		a = (game->board)[2][0];
+		b = (game->board)[2][1];
+		c = (game->board)[2][2];
+		if((a == b) && (a == c) && (b==c) && (a != 0) && (b!=0)&&(c!=0))
+			return 1;
+
+
+
 	// diag wins
 	a = (game->board)[1][1];
 	b = (game->board)[0][0];
 	c = (game->board)[2][2];
-	if(a == b && b == c && a != 0)
+	if((a == b) && (a == c) && (b==c) && (a != 0) && (b!=0)&&(c!=0)) {
+	//if((game->board)[1][1] == (game->board)[0][0] && (game->board)[0][0] == (game->board)[2][2] && (game->board)[2][2] != 0)
 		return 1;
+	}
 	a = (game->board)[1][1];
 	b = (game->board)[2][0];
 	c = (game->board)[0][2];
-	if(a == b && b == c && a != 0)
+	if((a == b) && (a == c) && (b==c) && (a != 0) && (b!=0)&&(c!=0)) {
+	//if((game->board)[1][1] == (game->board)[2][0] && (game->board)[2][0] == (game->board)[0][2] && (game->board)[0][2] != 0)
 		return 1;
+	}
 
 	return 0;
 }

@@ -52,8 +52,9 @@ int main(void) {
 		if(check_win(game) || game->move > 8)
 			break;
 	*/
+		if(game->move <= 8 && check_win(game)==0) {
 		// Engine turn
-		MCTS(root, game, 1000);
+		MCTS(root, game, 1000000);
 
 		node = pick_best_move(root);
 
@@ -72,7 +73,9 @@ int main(void) {
 		print_game(game);
 
 		root = traverse_move(root, move);
-		
+		}
+		if(check_win(game) || game->move > 8)
+			break;
 		
 	}
 

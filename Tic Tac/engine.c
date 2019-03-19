@@ -9,7 +9,7 @@ struct Node {
 	int depth;
 	Children_Array *children;
 	struct Node *parent;
-	unsigned int w_i; // wins after ith move
+	int w_i; // wins after ith move
 	unsigned int n_i; // games after ith move
 };
 
@@ -132,7 +132,7 @@ Node *append_new_nodes(Node *parent, State *game) {
 	int num_valid_moves = 9 - (game -> move);
 	int j = 0;
 
-	if(num_valid_moves == 0) {
+	if(num_valid_moves == 0 || check_win(game)) {
 		//printf("Cannot append more leaves: no valid moves\n");
 		return NULL;
 	}
@@ -159,9 +159,15 @@ Node *append_new_nodes(Node *parent, State *game) {
 int simulate(State *starting_pos, int player) {
 	//printf("Simulate\n");
 	int i,empty_cell, i_c, j_c,move, winning_player;
-	while(starting_pos -> move <= 8 && !check_win(starting_pos)) {
-		move = rand() % 9;
-		play_move(move,starting_pos);
+	if(check_win(starting_pos)==0) {
+		while(starting_pos -> move <= 8 && check_win(starting_pos)== 0) {
+			//if(starting_pos -> move <= 8 && check_win(starting_pos) == 0) {
+				
+				move = rand() % 9;
+				play_move(move,starting_pos);
+			//}
+			
+		}
 	}
 	int end_moves = starting_pos -> move;
 	if(end_moves == 9 && !check_win(starting_pos))
@@ -171,15 +177,11 @@ int simulate(State *starting_pos, int player) {
 		winning_player = 1; // 1 -> player 2
 	else
 		winning_player = 0; // 0 -> player 1 
-	printf("playing as: %d\n", player);
-	printf("winning player: %d\n", winning_player);
 	if(winning_player == player) {
-		printf("winning!\n");
-		print_game(starting_pos);
 		return 1;
 	}
 	else
-		return 0;
+		return -50;
 }
 
 void reset_game(State *game) {
@@ -261,11 +263,13 @@ void MCTS(Node *node, State *game, int iterations) {
 
 
 			play_move(temp_node -> move_position, temp_game);
+
+			
 		}
 		
 		//printf("simulation\n");
-
 		result = simulate(temp_game, player);
+		
 
 
 		copy_games(game, temp_game);
