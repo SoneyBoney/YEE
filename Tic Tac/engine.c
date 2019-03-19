@@ -161,8 +161,7 @@ int simulate(State *starting_pos, int player) {
 	int i,empty_cell, i_c, j_c,move, winning_player;
 	while(starting_pos -> move <= 8 && !check_win(starting_pos)) {
 		move = rand() % 9;
-		while(!play_move(move,starting_pos))
-			move = rand() % 9;
+		play_move(move,starting_pos);
 	}
 	int end_moves = starting_pos -> move;
 	if(end_moves == 9 && !check_win(starting_pos))
