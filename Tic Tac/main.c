@@ -25,27 +25,40 @@ int main(void) {
 
 int main(void) {
 	srand(time(NULL));
-	State *game = initialize_game();
-	int winner;
-	int p1,p2,ties = 0;
+	Node *root;
 
-	for(int i = 0; i<1000; i++) {
-		winner = simulate(game);
-		if(winner == 1)
-			p1++;
-		else if(winner == 2)
-			p2++;
-		else
-			ties++;
-		reset_game(game);
-	}
+	root = MCTS(20);
 
-	printf("player 1 won: %d times\n", p1);
-	printf("player 2 won: %d times\n", p2);
-	printf("ties: %d\n", ties);
-
-	free(game);
 	return 1;
 
+	int move;
+
+	State *game = initialize_game();
+	Node *node;
+
+	while(game->move <= 8 && !check_win(game)) {
+
+		printf("Please enter your move: ");
+		scanf("%d\n", &move);
+
+		// play your move
+		play_move(move, game);
+
+		printf("You moved:\n");
+		print_game(game);
+
+		// Given your move, return node with best move
+		node = pick_best_move(move, root);
+		// play this move
+		play_move(node -> move_position, game);
+
+		printf("Opponent played: \n");
+		print_game(game);
+
+		root = node;
+
+	}
+	
+	return 1;
 
 }
