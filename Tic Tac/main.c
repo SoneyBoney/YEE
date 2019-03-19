@@ -23,13 +23,16 @@ int main(void) {
 }
 */
 
+
+
+
 int main(void) {
 	srand(time(NULL));
 	Node *root;
 
-	root = MCTS(20);
+	root = MCTS(10000000);
 
-	return 1;
+	
 
 	int move;
 
@@ -38,27 +41,49 @@ int main(void) {
 
 	while(game->move <= 8 && !check_win(game)) {
 
+		
+		// Given your move, return node with best move
+		node = pick_best_move(move, root);
+		// play this move
+
+		play_move(node -> move_position, game);
+
+		printf("Opponent played: %d\n", node -> move_position);
+		print_game(game);
+
+		root = node;
+
+		
 		printf("Please enter your move: ");
-		scanf("%d\n", &move);
+		scanf("%d", &move);
 
 		// play your move
 		play_move(move, game);
 
 		printf("You moved:\n");
 		print_game(game);
-
-		// Given your move, return node with best move
+		
+/*
 		node = pick_best_move(move, root);
-		// play this move
 		play_move(node -> move_position, game);
-
-		printf("Opponent played: \n");
+		printf("player 1 played: %d\n", node -> move_position);
 		print_game(game);
 
 		root = node;
 
+		node = pick_best_move(move, root);
+		play_move(node -> move_position, game);
+		printf("player 2 played: %d\n", node -> move_position);
+		print_game(game);
+
+		root = node;
+*/
+
 	}
+
+
 	
 	return 1;
 
 }
+

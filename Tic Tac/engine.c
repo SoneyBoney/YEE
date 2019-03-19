@@ -21,13 +21,18 @@ struct Children_Array {
 
 
 Children_Array *create_children(int size) {
+	//printf("create_children\n");
 	Children_Array *children = (Children_Array *) malloc(sizeof(Children_Array));
+	children -> size = size;
 	children -> array = (Node **) malloc(sizeof(Node *) * size);
 	return children; 
 }
 
 
 Node *create_node(int move_position, Node *parent) {
+	//printf("create_node\n");
+
+
 	Node *new_node = (Node *) malloc(sizeof(Node));
 	new_node -> move_position = move_position;
 	new_node -> children = NULL;
@@ -50,16 +55,21 @@ Node *create_node(int move_position, Node *parent) {
 // selection
 
 long double compute_UCB(Node *node, int t) {
-	if(node -> n_i == 0)
+	//printf("compute_UCB\n");
+	if(node -> n_i == 0) {
 		return -1;
+	}
 	long double expectation_estimate = ((long double) node -> w_i) / ((long double) node -> n_i);
 	long double exploration_factor = (long double) sqrt((2 * log((long double) t)) / (long double) node -> n_i);
 	return expectation_estimate + exploration_factor;
 }
 
 Node *UCB_traversal(Node *root, State *game) {
-	if(root == NULL)
+	if(root == NULL) {
+		printf("NULL ROOT IN UCB TRVERse\n");
 		return NULL;
+	}
+	//printf("UCB_traversal\n");
 	int num_children,i,t;
 	Node *max_child;
 	Node **children_arr;
@@ -68,12 +78,20 @@ Node *UCB_traversal(Node *root, State *game) {
 	while(root -> children != NULL) {
 		t = root -> n_i;
 		num_children = root -> children -> size;
+
 		children_arr = (root -> children -> array);
+
 		max_child = children_arr[0];
+
+
+
 		max_UCB = compute_UCB(max_child, t);
+
 		if(max_UCB != -1) {
 			for(i = 1; i < num_children; i++) {
 				temp = compute_UCB(children_arr[i], t);
+
+	
 				if(temp > max_UCB || temp == -1) {
 					max_child = children_arr[i];
 					max_UCB = temp;
@@ -95,20 +113,22 @@ Node *UCB_traversal(Node *root, State *game) {
 void append_new_nodes(Node *parent, State *game) {
 	int i_c,j_c;
 	int num_valid_moves = 9 - (game -> move);
-	int i,j = 0;
+	int j = 0;
 
 	if(num_valid_moves == 0) {
-		printf("Cannot append more leaves: no valid moves\n");
+		//printf("Cannot append more leaves: no valid moves\n");
 		return;
 	}
 
 	Children_Array *children = create_children(num_valid_moves);
+	parent -> children = children;
 
-	for(; i < 9; i++) {
+	for(int i = 0; i < 9; i++) {
 		i_c = i / 3;
 		j_c = i % 3;
 		if((game -> board)[i_c][j_c] == 0) {
 			(children -> array)[j] = create_node(i, parent);
+			j++;
 		}
 	}
 
@@ -118,6 +138,7 @@ void append_new_nodes(Node *parent, State *game) {
 
 // simulation
 int simulate(State *starting_pos) {
+	//printf("Simulate\n");
 	int i,empty_cell, i_c, j_c,move;
 	while(starting_pos -> move <= 8 && !check_win(starting_pos)) {
 		move = rand() % 9;
@@ -128,10 +149,11 @@ int simulate(State *starting_pos) {
 		return 0;
 	if(end_moves % 2 == 0)
 		return 1;
-	return 2;
+	return -1;
 }
 
 void reset_game(State *game) {
+	//printf("reset_game\n");
 	game -> move = 0;
 	for(int i = 0; i < 3; i++) {
 		for(int j = 0; j < 3; j++) {
@@ -145,12 +167,13 @@ void reset_game(State *game) {
 // back prop
 
 void back_prop(Node *leaf, int game_result) {
+	//printf("back_prop\n");
 	if(leaf == NULL) {
 		printf("error leaf is null\n");
 		return;
 	}
 
-	while(leaf -> move_position != -1) {
+	while(leaf!= NULL) {
 		if((leaf -> depth) % 2 == 1)
 			(leaf -> w_i) += game_result;
 		else
@@ -174,19 +197,36 @@ Node *MCTS(int iterations) {
 
 	for(; iterations > 0; iterations--) {
 	// selection
+	
 		node = UCB_traversal(root, game);
 
 	// expansion
+		
+
+		
+
 		append_new_nodes(node, game);
+		if(game -> move < 9) {
+	
 	// simulation
+		
 		node = ((node -> children) -> array)[0];
+		
 		play_move(node -> move_position, game);
+	}
 		result = simulate(game);
+
+
 		reset_game(game);
 
+	
 	// backprop
+		
 		back_prop(node, result);
 
+		
+	
+		
 	}
 	free(game);
 	return root;
