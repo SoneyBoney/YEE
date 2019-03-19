@@ -50,6 +50,18 @@ Node *create_node(int move_position, Node *parent) {
 	return new_node;
 }
 
+Node *traverse_move(Node *root, int move) {
+	if(root == NULL)
+		return NULL;
+
+	int num_children = root -> children -> size;
+	Node **children = root -> children -> array;
+
+	for(int i = 0; i < num_children; i++) {
+
+	}
+
+}
 
 
 // selection
@@ -137,9 +149,9 @@ void append_new_nodes(Node *parent, State *game) {
 
 
 // simulation
-int simulate(State *starting_pos) {
+int simulate(State *starting_pos, int player) {
 	//printf("Simulate\n");
-	int i,empty_cell, i_c, j_c,move;
+	int i,empty_cell, i_c, j_c,move, winning_player;
 	while(starting_pos -> move <= 8 && !check_win(starting_pos)) {
 		move = rand() % 9;
 		play_move(move, starting_pos);
@@ -148,8 +160,13 @@ int simulate(State *starting_pos) {
 	if(end_moves == 9)
 		return 0;
 	if(end_moves % 2 == 0)
+		winning_player = 1; // player 2
+	else
+		winning_player = 0; // player 1
+	if(winning_player == player)
 		return 1;
-	return -1;
+	else
+		return 0;
 }
 
 void reset_game(State *game) {
@@ -174,10 +191,7 @@ void back_prop(Node *leaf, int game_result) {
 	}
 
 	while(leaf!= NULL) {
-		if((leaf -> depth) % 2 == 1)
-			(leaf -> w_i) += game_result;
-		else
-			(leaf -> w_i) -= game_result;
+		(leaf -> w_i) += game_result;
 		(leaf -> n_i)++;
 		leaf = leaf -> parent;
 	}
@@ -188,48 +202,67 @@ void back_prop(Node *leaf, int game_result) {
 
 // Synthesis
 
-Node *MCTS(int iterations) {
-	State *game = initialize_game();
-	Node *root = create_node(-1, NULL);
+void copy_games(State *src, State *dest) {
+	dest -> move = src -> move;
+	for(int i = 0; i < 3; i++) {
+		for(int j = 0; j < 3; j++) {
+			(dest -> board)[i][j] = (src -> board)[i][j];
+		}
+	}
+	return;
+}
 
-	Node *node;
-	int result;
+
+void MCTS(Node *node, State *game, int iterations) {
+	int result, player;
+	Node *temp_node;
+
+	node -> parent = NULL;
+	node -> children = NULL;
+	node -> w_i = 0;
+	node -> n_i = 0;
+	node -> depth = 0;
+
+	State *temp_game = initialize_game();
+	copy_games(game, temp_game);
+	player = (game -> move) % 2; // 0 is player 1, 1 is player 2
+
 
 	for(; iterations > 0; iterations--) {
 	// selection
 	
-		node = UCB_traversal(root, game);
+		temp_node = UCB_traversal(node, temp_game);
 
 	// expansion
 		
 
 		
 
-		append_new_nodes(node, game);
+		append_new_nodes(temp_node, temp_game);
 		if(game -> move < 9) {
 	
 	// simulation
 		
-		node = ((node -> children) -> array)[0];
+		temp_node = ((temp_node -> children) -> array)[0];
 		
-		play_move(node -> move_position, game);
+		play_move(temp_node -> move_position, temp_game);
 	}
-		result = simulate(game);
+		result = simulate(temp_game, player);
 
 
-		reset_game(game);
+		copy_games(game, temp_game);
 
 	
 	// backprop
 		
-		back_prop(node, result);
+		back_prop(temp_node, result);
 
 		
 	
 		
 	}
-	free(game);
-	return root;
+	free(temp_game);
+	return;
 }
 
 // engine
@@ -239,7 +272,7 @@ long double compute_expectation(int w_i, unsigned n_i) {
 }
 
 
-Node *pick_best_move(int move, Node *node) {
+Node *pick_best_move(Node *node) {
 	int num_children;
 	long double max_expectation, temp;
 

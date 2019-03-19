@@ -29,56 +29,36 @@ int main(void) {
 int main(void) {
 	srand(time(NULL));
 	Node *root;
-
-	root = MCTS(10000000);
-
-	
-
+	Node *node;
+	Node *node2;
 	int move;
 
 	State *game = initialize_game();
-	Node *node;
+	root = create_node(-1, NULL);
+	MCTS(root, game, 1000);
+	
 
 	while(game->move <= 8 && !check_win(game)) {
-
-		
-		// Given your move, return node with best move
-		node = pick_best_move(move, root);
-		// play this move
-
-		play_move(node -> move_position, game);
-
-		printf("Opponent played: %d\n", node -> move_position);
-		print_game(game);
-
-		root = node;
-
-		
-		printf("Please enter your move: ");
+		// human turn
+		printf("play a move: ");
 		scanf("%d", &move);
 
-		// play your move
-		play_move(move, game);
-
-		printf("You moved:\n");
+		play_move(move,game);
 		print_game(game);
+
+		root = traverse_move(root, move);
 		
-/*
-		node = pick_best_move(move, root);
-		play_move(node -> move_position, game);
-		printf("player 1 played: %d\n", node -> move_position);
-		print_game(game);
+		// Engine turn
+		MCTS(root, game, 1000);
 
+		node = pick_best_move(root);
+
+		play_move(node->move_position, game);
+
+		print_game(game);
 		root = node;
 
-		node = pick_best_move(move, root);
-		play_move(node -> move_position, game);
-		printf("player 2 played: %d\n", node -> move_position);
-		print_game(game);
-
-		root = node;
-*/
-
+		
 	}
 
 
