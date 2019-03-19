@@ -3,6 +3,7 @@
 #include <limits.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 
 typedef struct {
@@ -13,7 +14,6 @@ typedef struct {
 State *initialize_game(void);
 void print_game(State *game);
 int play_move(int position, State *game);
-
 
 State *initialize_game(void) {
 	State *game = (State *) malloc(sizeof(State));
@@ -109,26 +109,7 @@ int check_win(State *game) {
 }
 
 
-int main(void) {
-	int position;
-	int valid_move;
-	int player;
-	State *game = initialize_game();
-	while(game->move <= 8 && !check_win(game)) {
-		player = ((game -> move) % 2) + 1;
-		printf("Player %d, please enter move: ", player);
-		scanf("%d", &position);
-		if(position >= 0 && position <= 9) {
-			valid_move = play_move(position, game);
-			if(valid_move) {
-				print_game(game);
-			}
-		}
-	}
-	printf("Congrats player %d!\n", player);
 
-	return 0;
-}
 
 
 
