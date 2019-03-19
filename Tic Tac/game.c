@@ -75,10 +75,10 @@ int play_move(int position, State *game) {
 }
 
 int check_win(State *game) {
-	int i,j;
+	//int i,j;
 	int a,b,c;
 	// column wins
-	for(i = 0; i < 2; i++) {
+	for(int i = 0; i < 2; i++) {
 		a = (game->board)[0][i];
 		b = (game->board)[1][i];
 		c = (game->board)[2][i];
@@ -86,7 +86,7 @@ int check_win(State *game) {
 			return 1;
 	}
 	// row wins
-	for(i = 0; i < 2; i++) {
+	for(int i = 0; i < 2; i++) {
 		a = (game->board)[i][0];
 		b = (game->board)[i][1];
 		c = (game->board)[i][2];
@@ -107,9 +107,6 @@ int check_win(State *game) {
 
 	return 0;
 }
-
-
-
 
 
 

@@ -35,10 +35,11 @@ int main(void) {
 
 	State *game = initialize_game();
 	root = create_node(-1, NULL);
-	MCTS(root, game, 1000);
+	append_new_nodes(root, game);
 	
 
 	while(game->move <= 8 && !check_win(game)) {
+		/*
 		// human turn
 		printf("play a move: ");
 		scanf("%d", &move);
@@ -48,6 +49,9 @@ int main(void) {
 
 		root = traverse_move(root, move);
 		
+		if(check_win(game) || game->move > 8)
+			break;
+	*/
 		// Engine turn
 		MCTS(root, game, 1000);
 
@@ -58,6 +62,17 @@ int main(void) {
 		print_game(game);
 		root = node;
 
+		if(check_win(game) || game->move > 8)
+			break;
+		// human turn
+		printf("play a move: ");
+		scanf("%d", &move);
+
+		play_move(move,game);
+		print_game(game);
+
+		root = traverse_move(root, move);
+		
 		
 	}
 

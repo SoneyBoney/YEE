@@ -9,7 +9,7 @@ struct Node {
 	int depth;
 	Children_Array *children;
 	struct Node *parent;
-	int w_i; // wins after ith move
+	unsigned int w_i; // wins after ith move
 	unsigned int n_i; // games after ith move
 };
 
@@ -53,14 +53,16 @@ Node *create_node(int move_position, Node *parent) {
 Node *traverse_move(Node *root, int move) {
 	if(root == NULL)
 		return NULL;
+	Node *node;
 
 	int num_children = root -> children -> size;
 	Node **children = root -> children -> array;
 
 	for(int i = 0; i < num_children; i++) {
-
+		if(children[i]->move_position == move)
+			node = children[i];
 	}
-
+	return node;
 }
 
 
@@ -114,6 +116,9 @@ Node *UCB_traversal(Node *root, State *game) {
 		}
 		root = max_child;
 		play_move(root -> move_position, game);
+		if(max_UCB == -1)
+			break;
+		//printf("max_UCB = %Lf\n", max_UCB);
 	}
 
 	return root;
@@ -122,14 +127,14 @@ Node *UCB_traversal(Node *root, State *game) {
 
 // expansion
 
-void append_new_nodes(Node *parent, State *game) {
+Node *append_new_nodes(Node *parent, State *game) {
 	int i_c,j_c;
 	int num_valid_moves = 9 - (game -> move);
 	int j = 0;
 
 	if(num_valid_moves == 0) {
 		//printf("Cannot append more leaves: no valid moves\n");
-		return;
+		return NULL;
 	}
 
 	Children_Array *children = create_children(num_valid_moves);
@@ -143,8 +148,10 @@ void append_new_nodes(Node *parent, State *game) {
 			j++;
 		}
 	}
+	j = rand() % j;
 
-	return;
+
+	return (children -> array)[j];
 }
 
 
@@ -154,17 +161,24 @@ int simulate(State *starting_pos, int player) {
 	int i,empty_cell, i_c, j_c,move, winning_player;
 	while(starting_pos -> move <= 8 && !check_win(starting_pos)) {
 		move = rand() % 9;
-		play_move(move, starting_pos);
+		while(!play_move(move,starting_pos))
+			move = rand() % 9;
 	}
 	int end_moves = starting_pos -> move;
-	if(end_moves == 9)
+	if(end_moves == 9 && !check_win(starting_pos))
 		return 0;
+
 	if(end_moves % 2 == 0)
-		winning_player = 1; // player 2
+		winning_player = 1; // 1 -> player 2
 	else
-		winning_player = 0; // player 1
-	if(winning_player == player)
+		winning_player = 0; // 0 -> player 1 
+	printf("playing as: %d\n", player);
+	printf("winning player: %d\n", winning_player);
+	if(winning_player == player) {
+		printf("winning!\n");
+		print_game(starting_pos);
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -230,23 +244,28 @@ void MCTS(Node *node, State *game, int iterations) {
 
 	for(; iterations > 0; iterations--) {
 	// selection
+		//printf("selection\n");
 	
 		temp_node = UCB_traversal(node, temp_game);
 
 	// expansion
 		
 
-		
+		//printf("expansion\n");
 
-		append_new_nodes(temp_node, temp_game);
-		if(game -> move < 9) {
+		if(append_new_nodes(temp_node, temp_game)!= NULL) {
+		
 	
 	// simulation
 		
-		temp_node = ((temp_node -> children) -> array)[0];
+			temp_node = append_new_nodes(temp_node, temp_game);
+
+
+			play_move(temp_node -> move_position, temp_game);
+		}
 		
-		play_move(temp_node -> move_position, temp_game);
-	}
+		//printf("simulation\n");
+
 		result = simulate(temp_game, player);
 
 
@@ -255,6 +274,8 @@ void MCTS(Node *node, State *game, int iterations) {
 	
 	// backprop
 		
+		//printf("back_prop\n");
+
 		back_prop(temp_node, result);
 
 		
@@ -281,14 +302,18 @@ Node *pick_best_move(Node *node) {
 
 	Node *max_child = children[0];
 	max_expectation = compute_expectation(max_child -> w_i, max_child -> n_i);
+	//max_expectation = max_child -> n_i;
+	printf("%Lf\n", max_expectation);
 	for(int i = 1; i < num_children; i++) {
 		temp = compute_expectation(children[i] -> w_i, children[i] -> n_i);
+		//temp = children[i] -> n_i;
+		printf("%Lf\n", temp);
 		if(temp > max_expectation) {
 			max_child = children[i];
 			max_expectation = temp;
 		}
 	}
-
+	printf("max_expectation: %Lf\n", max_expectation);
 	return max_child;
 
 }
