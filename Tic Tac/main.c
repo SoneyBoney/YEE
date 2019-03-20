@@ -54,7 +54,7 @@ int main(void) {
 	*/
 		if(game->move <= 8 && check_win(game)==0) {
 		// Engine turn
-		MCTS(root, game, 1000000);
+		MCTS(root, game, 1000);
 
 		node = pick_best_move(root);
 

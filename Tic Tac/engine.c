@@ -116,7 +116,7 @@ Node *UCB_traversal(Node *root, State *game) {
 		}
 		root = max_child;
 		play_move(root -> move_position, game);
-		if(max_UCB == -1)
+		if(max_UCB == -1 || check_win(game) == 1)
 			break;
 		//printf("max_UCB = %Lf\n", max_UCB);
 	}
@@ -161,11 +161,11 @@ int simulate(State *starting_pos, int player) {
 	int i,empty_cell, i_c, j_c,move, winning_player;
 	if(check_win(starting_pos)==0) {
 		while(starting_pos -> move <= 8 && check_win(starting_pos)== 0) {
-			//if(starting_pos -> move <= 8 && check_win(starting_pos) == 0) {
+			if(starting_pos -> move <= 8 && check_win(starting_pos) == 0) {
 				
 				move = rand() % 9;
 				play_move(move,starting_pos);
-			//}
+			}
 			
 		}
 	}
@@ -178,7 +178,7 @@ int simulate(State *starting_pos, int player) {
 	else
 		winning_player = 0; // 0 -> player 1 
 	if(winning_player == player) {
-		return 1;
+		return 50;
 	}
 	else
 		return -50;
